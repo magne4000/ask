@@ -5,7 +5,7 @@
 # Copyright © 2013 magne <magne@blondi>
 #
 # Distributed under terms of the MIT license.
-import re
+import re, readline, glob
 
 """
 Here are all classes used to handle different types of questions
@@ -16,49 +16,50 @@ class Question:
     Abstract class
     """
 
-    def tostr(self):
+    def before_raw_input(self):
+        pass
+
+    def after_raw_input(self):
+        pass
+
+    def question(self):
         raise('This method must be overhidden')
 
-    def call(self):
+    def answer(self, answer):
         if hasattr(self, 'callback'):
-            self.callback()
-
-class Answer:
-    """
-    Abstract class
-    """
+            return self.callback(answer)
+        return None
 
     def check(self, userinput):
         raise('This method must be overhidden')
 
-class Text(Question, Answer):
+class Text(Question):
 
     def __init__(self, text, callback):
         self.text = text
         self.callback = callback
         self.newline = True
 
-    def tostr(self):
+    def question(self):
         return self.text
 
     def check(self, userinput):
         return True
 
     
-class Choices(Question, Answer):
+class Choices(Question):
     """
     Multiple choices oriented questions class
     """
 
-    def __init__(self, choices, callback):
+    def __init__(self, text, choices, callback):
+        self.text = text
         self.choices = choices
         self.callback = callback
-        self.whitelist = [str(ind) for ind in range(1, len(choices))]
+        self.whitelist = [str(ind) for ind in range(1, len(choices) + 1)]
 
-    def tostr(self):
-        for i, s in enumerate(self.choices):
-            yield "%d. %s" % (i, s)
-        yield "\n"
+    def question(self):
+        return self.text + "\n" + "\n".join(["%d. %s" % (i+1, s) for i, s in enumerate(self.choices)])
 
     def check(self, userinput):
         if userinput in self.whitelist:
@@ -72,8 +73,18 @@ class YesNo(Choices):
         self.callback = callback
         self.whitelist = ['y', 'n']
 
-    def tostr(self):
-        return (text + ' [y/n] ')
+    def question(self):
+        return (self.text + ' [y/n] ')
 
 class Path(Text):
-    pass
+
+    def _complete(self, text, state):
+        return (glob.glob(text+'*')+[None])[state]
+
+    def before_raw_input(self):
+        readline.set_completer_delims(' \t\n;')
+        readline.parse_and_bind('tab: complete')
+        readline.set_completer(self._complete)
+
+    def after_raw_input(self):
+        readline.set_completer()
