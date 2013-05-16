@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 #
 # Distributed under terms of the MIT license.
+from question import Question
 
 """
 A question/answer based prompt python lib
@@ -19,5 +20,8 @@ class Ask:
             answer = raw_input(self.ps)
             q.after_raw_input()
             if q.check(answer):
-                return q.answer(answer)
-
+                a = q.answer(answer)
+                if issubclass(a, Question):
+                    return self.ask(a)
+                else:
+                    return a

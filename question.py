@@ -26,16 +26,16 @@ class Question:
         raise('This method must be overhidden')
 
     def answer(self, answer):
-        if hasattr(self, 'callback'):
+        if hasattr(self, 'callback') and self.callback is not None:
             return self.callback(answer)
-        return None
+        return answer
 
     def check(self, userinput):
         raise('This method must be overhidden')
 
 class Text(Question):
 
-    def __init__(self, text, callback):
+    def __init__(self, text, callback=None):
         self.text = text
         self.callback = callback
         self.newline = True
@@ -46,13 +46,13 @@ class Text(Question):
     def check(self, userinput):
         return True
 
-    
+
 class Choices(Question):
     """
     Multiple choices oriented questions class
     """
 
-    def __init__(self, text, choices, callback):
+    def __init__(self, text, choices, callback=None):
         self.text = text
         self.choices = choices
         self.callback = callback
@@ -68,7 +68,7 @@ class Choices(Question):
 
 class YesNo(Choices):
 
-    def __init__(self, text, callback):
+    def __init__(self, text, callback=lambda a: a.lower() == 'y'):
         self.text = text
         self.callback = callback
         self.whitelist = ['y', 'n']
