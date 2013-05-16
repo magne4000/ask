@@ -21,7 +21,7 @@ class Ask:
             q.after_raw_input()
             if q.check(answer):
                 a = q.answer(answer)
-                if issubclass(a, Question):
+                if isinstance(a, Question):
                     return self.ask(a)
                 else:
                     return a
