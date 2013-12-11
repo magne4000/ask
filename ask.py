@@ -17,22 +17,21 @@ class Ask:
         self.ps = prompt
 
     @staticmethod
-    def _print(s, clean=False):
+    def _print(s, newline=True):
         """
         Prints something only if a prompt is not displayed
         """
         if not Ask.asking:
-            if clean:
-                sys.stdout.write('\x1b[1A') # Move cursor to previous line
-                sys.stdout.write('\r') # Go to the beginning of the line
-            sys.stdout.write(s+'\n')
+            sys.stdout.write('\r'+s)
+            if newline:
+                sys.stdout.write('\n')
             sys.stdout.flush()
 
     def ask(self, q):
         """
         Prints the question and input for user answer
         """
-        print(q.question())
+        print('\n'+q.question())
         while True:
             Ask.asking = True
             q.before_raw_input()
