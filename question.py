@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # vim:fenc=utf-8
 #
-# Copyright © 2013 magne <magne@blondi>
+# Copyright © 2013 magne <joel.charles@getonmyhor.se>
 #
 # Distributed under terms of the MIT license.
 import re, readline, glob
@@ -46,6 +46,30 @@ class Text(Question):
     def check(self, userinput):
         return True
 
+class Float(Text):
+
+    def __init__(self, text, callback=None):
+        self.text = text
+        self.callback = callback
+        self.newline = True
+
+    def check(self, userinput):
+        try:
+            float(userinput)
+        except ValueError:
+            return False
+        return True
+
+class Regex(Text):
+
+    def __init__(self, text, regex, callback=None):
+        self.text = text
+        self.regex = re.compile(regex)
+        self.callback = callback
+        self.newline = True
+    
+    def check(self, userinput):
+        return self.regex.match(userinput) is not None
 
 class Choices(Question):
     """
